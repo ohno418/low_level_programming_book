@@ -1,0 +1,4 @@
+Hello from "test.txt".
+this is
+  a test file
+for open and mmap syscalls.
