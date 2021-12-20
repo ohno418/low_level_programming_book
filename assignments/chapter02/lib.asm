@@ -104,3 +104,12 @@ parse_int:
 
 string_copy:
     ret
+
+;---
+global _start
+_start:
+    mov rdi, 0xfffffffffffffffd
+    call print_int
+    call print_newline
+    xor rdi, rdi
+    call exit
