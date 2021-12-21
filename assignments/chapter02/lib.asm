@@ -6,6 +6,7 @@ global print_char
 global print_newline
 global print_uint
 global print_int
+global read_char
 
 ; rdi: exit status code
 exit:
@@ -77,15 +78,18 @@ print_int:
     neg rdi
     jmp print_uint
 
-; TODO
-string_equals:
-    xor rax, rax
-    ret
-
+; Read 1 character from stdin.
 read_char:
+    push 0
     xor rax, rax
+    xor rdi, rdi
+    mov rsi, rsp
+    mov rdx, 1
+    syscall
+    pop rax
     ret
 
+; TODO
 read_word:
     ret
 
@@ -101,6 +105,11 @@ parse_int:
     xor rax, rax
     ret
 
+; rdi: string 1
+; rsi: string 2
+string_equals:
+    xor rax, rax
+    ret
 
 string_copy:
     ret
@@ -108,8 +117,11 @@ string_copy:
 ;---
 global _start
 _start:
-    mov rdi, 0xfffffffffffffffd
-    call print_int
+    call read_char
+
+    mov rdi, rax
+    call print_char
+
     call print_newline
     xor rdi, rdi
     call exit
