@@ -1,3 +1,7 @@
+; FIXME: for parse_uint test
+section .data
+msg: db "123", 0
+
 section .text
 global exit
 global string_length
@@ -8,6 +12,7 @@ global print_uint
 global print_int
 global read_char
 global read_word
+global parse_uint
 
 ; rdi: exit status code
 exit:
@@ -139,13 +144,36 @@ read_word:
     pop r14
     ret
 
-; TODO
-; rdi points to a string
-; returns rax: number, rdx : length
+; Parses a number from beginning of a string,
+; returns the number on rax, its length on rdx.
+;
+; rdi: pointer to a null-terminated string
 parse_uint:
+    mov r8, 10
     xor rax, rax
+    xor rcx, rcx
+.loop:
+    movzx r9, byte [rdi + rcx]
+
+    ; not a number?
+    cmp r9b, '0'
+    jb .end
+    cmp r9b, '9'
+    ja .end
+
+    ; Increment digit of the number on rax.
+    xor rdx, rdx
+    mul r8
+
+    and r9b, 0x0f  ; ascii code to number (e.g. 0x31 to 0x01)
+    add rax, r9
+    inc rcx
+    jmp .loop
+.end:
+    mov rdx, rcx
     ret
 
+; TODO
 ; rdi points to a string
 ; returns rax: number, rdx : length
 parse_int:
@@ -164,15 +192,21 @@ string_copy:
 ;---
 global _start
 _start:
-    push 0
-    mov rdi, rsp
-    mov rsi, 8
-    call read_word
+    mov rdi, msg
+    call parse_uint
 
-    mov rdi, rax
-    call print_string
+    push rax  ; number
+    push rdx  ; length
 
+    ; length
+    pop rdi
+    call print_uint
     call print_newline
-    pop rsi
+
+    ; number
+    pop rdi
+    call print_uint
+    call print_newline
+
     xor rdi, rdi
     call exit
