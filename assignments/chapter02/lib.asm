@@ -1,6 +1,7 @@
-; FIXME: for parse_uint test
+; FIXME: for parse_int test
 section .data
-msg: db "123", 0
+uint_msg: db "123hi", 0
+int_msg: db "-123hi", 0
 
 section .text
 global exit
@@ -13,6 +14,7 @@ global print_int
 global read_char
 global read_word
 global parse_uint
+global parse_int
 
 ; rdi: exit status code
 exit:
@@ -173,13 +175,23 @@ parse_uint:
     mov rdx, rcx
     ret
 
-; TODO
-; rdi points to a string
-; returns rax: number, rdx : length
+; Parses a signed number from beginning of a string,
+; returns the number on rax, its length on rdx.
+;
+; rdi: pointer to a null-terminated string
 parse_int:
-    xor rax, rax
+    mov al, byte [rdi]
+    cmp al, '-'
+    je .signed
+    jmp parse_uint
+.signed:
+    inc rdi
+    call parse_uint
+    neg rax
+    inc rdx  ; increment length for '-'
     ret
 
+; TODO
 ; rdi: string 1
 ; rsi: string 2
 string_equals:
@@ -192,8 +204,9 @@ string_copy:
 ;---
 global _start
 _start:
-    mov rdi, msg
-    call parse_uint
+    ; for unsigned number
+    mov rdi, uint_msg
+    call parse_int
 
     push rax  ; number
     push rdx  ; length
@@ -205,7 +218,24 @@ _start:
 
     ; number
     pop rdi
+    call print_int
+    call print_newline
+
+    ; for signed number
+    mov rdi, int_msg
+    call parse_int
+
+    push rax  ; number
+    push rdx  ; length
+
+    ; length
+    pop rdi
     call print_uint
+    call print_newline
+
+    ; number
+    pop rdi
+    call print_int
     call print_newline
 
     xor rdi, rdi
