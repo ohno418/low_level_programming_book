@@ -1,9 +1,3 @@
-; FIXME: for test
-section .data
-str0: db "abc", 0
-str1: db 10
-str2: db 2
-
 section .text
 global exit
 global string_length
@@ -239,28 +233,3 @@ string_copy:
 .over:
     xor rax, rax
     ret
-
-; FIXME: for test
-global _start
-_start:
-    mov rdi, str0
-    mov rsi, str2
-    mov rdx, 2
-    call string_copy
-    mov rdi, rax
-    call print_uint
-    call print_newline
-
-    mov rdi, str0
-    mov rsi, str1
-    mov rdx, 10
-    call string_copy
-    mov rdi, rax
-    call print_string
-    call print_newline
-    mov rdi, str1
-    call print_string
-    call print_newline
-
-    xor rdi, rdi
-    call exit
