@@ -1,8 +1,8 @@
 ; FIXME: for test
 section .data
 str0: db "abc", 0
-str1: db "abC", 0
-str2: db "abcd", 0
+str1: db 10
+str2: db 2
 
 section .text
 global exit
@@ -17,6 +17,7 @@ global read_word
 global parse_uint
 global parse_int
 global string_equals
+global string_copy
 
 ; rdi: exit status code
 exit:
@@ -211,8 +212,32 @@ string_equals:
     xor rax, rax
     ret
 
-; TODO
+; Copies a string to buffer and returns buffer address,
+; or returns 1 if buffer length over.
+;
+; rdi: pointer to a string
+; rsi: pointer to a buffer
+; rdx: length of the buffer
 string_copy:
+    xor rcx, rcx
+    xor r8, r8
+.loop:
+    mov r8b, byte [rdi + rcx]
+    mov byte [rsi + rcx], r8b
+    inc rcx
+
+    ; length over?
+    cmp rcx, rdx
+    je .over
+
+    ; string end?
+    test r8b, r8b
+    jnz .loop
+
+    mov rax, rsi
+    ret
+.over:
+    xor rax, rax
     ret
 
 ; FIXME: for test
@@ -220,23 +245,21 @@ global _start
 _start:
     mov rdi, str0
     mov rsi, str2
-    call string_equals
+    mov rdx, 2
+    call string_copy
     mov rdi, rax
-    call print_int
+    call print_uint
     call print_newline
 
     mov rdi, str0
     mov rsi, str1
-    call string_equals
+    mov rdx, 10
+    call string_copy
     mov rdi, rax
-    call print_int
+    call print_string
     call print_newline
-
-    mov rdi, str0
-    mov rsi, str0
-    call string_equals
-    mov rdi, rax
-    call print_int
+    mov rdi, str1
+    call print_string
     call print_newline
 
     xor rdi, rdi
