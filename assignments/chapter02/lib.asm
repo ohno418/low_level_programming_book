@@ -7,6 +7,7 @@ global print_newline
 global print_uint
 global print_int
 global read_char
+global read_word
 
 ; rdi: exit status code
 exit:
@@ -89,10 +90,56 @@ read_char:
     pop rax
     ret
 
-; TODO
+; Read a word from stdin into a buffer,
+; then return buffer address on rax and word length rdx.
+; (A word is constructed without white spaces.)
+; If the word is over the size, return 0.
+;
+; rdi: buffer address
+; rsi: buffer size
 read_word:
+    push r14
+    ; Use r14 as length counter.
+    xor r14, r14
+.skip_first_spaces:
+    push rdi
+    call read_char
+    pop rdi
+    ; Skip first white spaces.
+    cmp al, ' '
+    je .skip_first_spaces
+    cmp al, 0x09
+    je .skip_first_spaces
+    cmp al, 0x0a
+    je .skip_first_spaces
+    cmp al, 0x0d
+    je .skip_first_spaces
+.loop:
+    mov byte [rdi + r14], al
+    inc r14
+
+    push rdi
+    call read_char
+    pop rdi
+    cmp al, ' '
+    je .end
+    cmp al, 0x09
+    je .end
+    cmp al, 0x0a
+    je .end
+    cmp al, 0x0d
+    je .end
+    test al, al
+    jz .end
+    jmp .loop
+.end:
+    ; Terminate with null.
+    mov byte [rdi + r14], 0
+    mov rax, rdi
+    pop r14
     ret
 
+; TODO
 ; rdi points to a string
 ; returns rax: number, rdx : length
 parse_uint:
@@ -117,11 +164,15 @@ string_copy:
 ;---
 global _start
 _start:
-    call read_char
+    push 0
+    mov rdi, rsp
+    mov rsi, 8
+    call read_word
 
     mov rdi, rax
-    call print_char
+    call print_string
 
     call print_newline
+    pop rsi
     xor rdi, rdi
     call exit
