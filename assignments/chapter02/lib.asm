@@ -1,7 +1,8 @@
-; FIXME: for parse_int test
+; FIXME: for test
 section .data
-uint_msg: db "123hi", 0
-int_msg: db "-123hi", 0
+str0: db "abc", 0
+str1: db "abC", 0
+str2: db "abcd", 0
 
 section .text
 global exit
@@ -15,6 +16,7 @@ global read_char
 global read_word
 global parse_uint
 global parse_int
+global string_equals
 
 ; rdi: exit status code
 exit:
@@ -191,50 +193,49 @@ parse_int:
     inc rdx  ; increment length for '-'
     ret
 
-; TODO
+; Returns 1 if equal, otherwise 0.
+;
 ; rdi: string 1
 ; rsi: string 2
 string_equals:
+    mov al, byte [rdi]
+    cmp al, byte [rsi]
+    jne .no
+    inc rdi
+    inc rsi
+    test al, al
+    jnz string_equals
+    mov rax, 1
+    ret
+.no:
     xor rax, rax
     ret
 
+; TODO
 string_copy:
     ret
 
-;---
+; FIXME: for test
 global _start
 _start:
-    ; for unsigned number
-    mov rdi, uint_msg
-    call parse_int
-
-    push rax  ; number
-    push rdx  ; length
-
-    ; length
-    pop rdi
-    call print_uint
-    call print_newline
-
-    ; number
-    pop rdi
+    mov rdi, str0
+    mov rsi, str2
+    call string_equals
+    mov rdi, rax
     call print_int
     call print_newline
 
-    ; for signed number
-    mov rdi, int_msg
-    call parse_int
-
-    push rax  ; number
-    push rdx  ; length
-
-    ; length
-    pop rdi
-    call print_uint
+    mov rdi, str0
+    mov rsi, str1
+    call string_equals
+    mov rdi, rax
+    call print_int
     call print_newline
 
-    ; number
-    pop rdi
+    mov rdi, str0
+    mov rsi, str0
+    call string_equals
+    mov rdi, rax
     call print_int
     call print_newline
 
