@@ -144,7 +144,7 @@ read_word:
     pop r14
     ret
 
-; Parses a number from beginning of a string,
+; Parses an unsigned number from beginning of a string,
 ; returns the number on rax, its length on rdx.
 ;
 ; rdi: pointer to a null-terminated string
