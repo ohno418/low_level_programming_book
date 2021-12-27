@@ -1,6 +1,9 @@
 global find_word
 extern string_equals
 
+section .rodata
+msg_noword: db "No such word", 0
+
 section .text
 ; Finds a key from dict and returns the address of the record.
 ; Otherwise returns zero.
