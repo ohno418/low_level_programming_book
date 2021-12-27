@@ -2,6 +2,7 @@ section .text
 global exit
 global string_length
 global print_string
+global print_error
 global print_char
 global print_newline
 global print_uint
@@ -37,6 +38,19 @@ print_string:
     mov rdx, rax
     mov rax, 1
     mov rdi, 1
+    syscall
+    ret
+
+; Prints a string to stderror.
+;
+; rdi: pointer to a null-terminated string
+print_error:
+    push rdi
+    call string_length
+    pop rsi
+    mov rdx, rax
+    mov rax, 1
+    mov rdi, 2
     syscall
     ret
 
